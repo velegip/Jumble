@@ -183,6 +183,7 @@ public final class Channel implements IChannel, Comparable<Channel> {
     /**
      * Recursively fetches the subchannel user count.
      * FIXME: is it necessary to cache this?
+     *
      * @return The sum of users in this channel and its subchannel.
      */
     public int getSubchannelUserCount() {
@@ -209,9 +210,7 @@ public final class Channel implements IChannel, Comparable<Channel> {
 
         Channel channel = (Channel) o;
 
-        if (mId != channel.mId) return false;
-
-        return true;
+        return mId == channel.mId;
     }
 
     @Override
@@ -221,8 +220,8 @@ public final class Channel implements IChannel, Comparable<Channel> {
 
     @Override
     public int compareTo(Channel another) {
-        if(mPosition != another.getPosition())
-            return ((Integer)mPosition).compareTo(another.getPosition());
+        if (mPosition != another.getPosition())
+            return ((Integer) mPosition).compareTo(another.getPosition());
         return mName.compareTo(another.getName());
     }
 }

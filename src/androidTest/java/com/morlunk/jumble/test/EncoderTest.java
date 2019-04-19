@@ -31,7 +31,6 @@ import com.morlunk.jumble.net.PacketBuffer;
  * This class tests the Opus and CELT encoders with blank PCM data.
  * The bitrate is set to 40000bps. TODO: add test for varying bitrates.
  * If any of these methods throw a NativeAudioException, then the test will fail.
- * Created by andrew on 13/10/13.
  */
 public class EncoderTest extends AndroidTestCase {
     private static final int MAX_BUFFER_SIZE = 960;

@@ -27,9 +27,6 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.util.Arrays;
 
-/**
-* Created by andrew on 08/12/14.
-*/
 public class OpusEncoder implements IEncoder {
     private final byte[] mBuffer;
     private final short[] mAudioBuffer;
@@ -56,7 +53,8 @@ public class OpusEncoder implements IEncoder {
         IntPointer error = new IntPointer(1);
         error.put(0);
         mState = Opus.opus_encoder_create(sampleRate, channels, Opus.OPUS_APPLICATION_VOIP, error);
-        if(error.get() < 0) throw new NativeAudioException("Opus encoder initialization failed with error: "+error.get());
+        if (error.get() < 0)
+            throw new NativeAudioException("Opus encoder initialization failed with error: " + error.get());
         Opus.opus_encoder_ctl(mState, Opus.OPUS_SET_VBR_REQUEST, 0);
         Opus.opus_encoder_ctl(mState, Opus.OPUS_SET_BITRATE_REQUEST, bitrate);
     }
@@ -69,7 +67,7 @@ public class OpusEncoder implements IEncoder {
 
         if (inputSize != mFrameSize) {
             throw new IllegalArgumentException("This Opus encoder implementation requires a " +
-                                                       "constant frame size.");
+                    "constant frame size.");
         }
 
         mTerminated = false;
@@ -85,13 +83,13 @@ public class OpusEncoder implements IEncoder {
     private int encode() throws NativeAudioException {
         if (mBufferedFrames < mFramesPerPacket) {
             // If encoding is done before enough frames are buffered, fill rest of packet.
-            Arrays.fill(mAudioBuffer, mFrameSize * mBufferedFrames, mAudioBuffer.length, (short)0);
+            Arrays.fill(mAudioBuffer, mFrameSize * mBufferedFrames, mAudioBuffer.length, (short) 0);
             mBufferedFrames = mFramesPerPacket;
         }
         int result = Opus.opus_encode(mState, mAudioBuffer, mFrameSize * mBufferedFrames,
-                                             mBuffer, mBuffer.length);
-        if(result < 0) throw new NativeAudioException("Opus encoding failed with error: "
-                                                              + result);
+                mBuffer, mBuffer.length);
+        if (result < 0) throw new NativeAudioException("Opus encoding failed with error: "
+                + result);
         mEncodedLength = result;
         return result;
     }
@@ -113,7 +111,7 @@ public class OpusEncoder implements IEncoder {
         }
 
         int size = mEncodedLength;
-        if(mTerminated)
+        if (mTerminated)
             size |= 1 << 13;
         packetBuffer.writeLong(size);
         packetBuffer.append(mBuffer, mEncodedLength);

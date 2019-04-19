@@ -17,6 +17,8 @@
 
 package com.morlunk.jumble.net;
 
+import android.net.SSLCertificateSocketFactory;
+import android.os.Build;
 import android.util.Log;
 
 import com.google.protobuf.Message;
@@ -34,8 +36,6 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocket;
 
-import android.net.SSLCertificateSocketFactory;
-import android.os.Build;
 
 /**
  * Class to maintain and interface with the TCP connection to a Mumble server.
@@ -62,7 +62,7 @@ public class JumbleTCP extends JumbleNetworkThread {
     }
 
     public void connect(String host, int port, boolean useTor) throws ConnectException {
-        if(mRunning) throw new ConnectException("TCP connection already established!");
+        if (mRunning) throw new ConnectException("TCP connection already established!");
         mHost = host;
         mPort = port;
         mUseTor = useTor;
@@ -80,7 +80,7 @@ public class JumbleTCP extends JumbleNetworkThread {
 
             Log.i(Constants.TAG, "JumbleTCP: Connecting");
 
-            if(mUseTor)
+            if (mUseTor)
                 mTCPSocket = mSocketFactory.createTorSocket(address, mPort, JumbleConnection.TOR_HOST, JumbleConnection.TOR_PORT);
             else
                 mTCPSocket = mSocketFactory.createSocket(address, mPort);
@@ -101,7 +101,7 @@ public class JumbleTCP extends JumbleNetworkThread {
             Log.v(Constants.TAG, "JumbleTCP: Now listening");
             mConnected = true;
 
-            if(mListener != null) {
+            if (mListener != null) {
                 executeOnMainThread(new Runnable() {
                     @Override
                     public void run() {
@@ -110,7 +110,7 @@ public class JumbleTCP extends JumbleNetworkThread {
                 });
             }
 
-            while(mConnected) {
+            while (mConnected) {
                 final short messageType = mDataInput.readShort();
                 final int messageLength = mDataInput.readInt();
                 final byte[] data = new byte[messageLength];
@@ -130,8 +130,8 @@ public class JumbleTCP extends JumbleNetworkThread {
             error("Could not open a connection to the host", e);
         } catch (SSLHandshakeException e) {
             // Try and verify certificate manually.
-            if(mSocketFactory.getServerChain() != null && mListener != null) {
-                if(!mRunning) return;
+            if (mSocketFactory.getServerChain() != null && mListener != null) {
+                if (!mRunning) return;
                 executeOnMainThread(new Runnable() {
                     @Override
                     public void run() {
@@ -166,7 +166,8 @@ public class JumbleTCP extends JumbleNetworkThread {
 
     /**
      * Attempts to send a protobuf message over TCP. Thread-safe, executes on a single threaded executor.
-     * @param message The message to send.
+     *
+     * @param message     The message to send.
      * @param messageType The type of the message to send.
      */
     public void sendMessage(final Message message, final JumbleTCPMessageType messageType) {
@@ -186,10 +187,12 @@ public class JumbleTCP extends JumbleNetworkThread {
             }
         });
     }
+
     /**
      * Attempts to send a protobuf message over TCP. Thread-safe, executes on a single threaded executor.
-     * @param message The data to send.
-     * @param length The length of the byte array.
+     *
+     * @param message     The data to send.
+     * @param length      The length of the byte array.
      * @param messageType The type of the message to send.
      */
     public void sendMessage(final byte[] message, final int length, final JumbleTCPMessageType messageType) {
@@ -213,7 +216,7 @@ public class JumbleTCP extends JumbleNetworkThread {
      * Attempts to disconnect gracefully on the Tx thread.
      * Disconnects interrupt the socket listening on the Tx thread, suppressing any exceptions
      * caused by this request. Any remaining protobuf messages will be dispatched first.
-     *
+     * <p>
      * Suppresses all future errors on this connection.
      */
     public void disconnect() {
@@ -232,7 +235,7 @@ public class JumbleTCP extends JumbleNetworkThread {
             }
         });
 
-        if(mListener != null) {
+        if (mListener != null) {
             executeOnMainThread(new Runnable() {
                 @Override
                 public void run() {
@@ -247,7 +250,7 @@ public class JumbleTCP extends JumbleNetworkThread {
             return; // Don't handle errors post-disconnection.
         final JumbleException ce = new JumbleException(desc, e,
                 JumbleException.JumbleDisconnectReason.CONNECTION_ERROR);
-        if(mListener != null)
+        if (mListener != null)
             executeOnMainThread(new Runnable() {
                 @Override
                 public void run() {
@@ -257,10 +260,14 @@ public class JumbleTCP extends JumbleNetworkThread {
     }
 
     public interface TCPConnectionListener {
-        public void onTCPConnectionEstablished();
-        public void onTLSHandshakeFailed(X509Certificate[] chain);
-        public void onTCPConnectionFailed(JumbleException e);
-        public void onTCPConnectionDisconnect();
-        public void onTCPMessageReceived(JumbleTCPMessageType type, int length, byte[] data);
+        void onTCPConnectionEstablished();
+
+        void onTLSHandshakeFailed(X509Certificate[] chain);
+
+        void onTCPConnectionFailed(JumbleException e);
+
+        void onTCPConnectionDisconnect();
+
+        void onTCPMessageReceived(JumbleTCPMessageType type, int length, byte[] data);
     }
 }

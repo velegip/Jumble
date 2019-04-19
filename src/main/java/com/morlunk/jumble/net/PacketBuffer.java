@@ -45,6 +45,7 @@ public class PacketBuffer {
 
     /**
      * Returns the current size of the packet.
+     *
      * @return The number of bytes written to the packet buffer.
      */
     public int size() {
@@ -53,6 +54,7 @@ public class PacketBuffer {
 
     /**
      * Returns the maximum size this packet can contain.
+     *
      * @return The capacity of this packet buffer.
      */
     public int capacity() {
@@ -81,6 +83,7 @@ public class PacketBuffer {
 
     /**
      * Slices the underlying byte buffer at the current position and limits it to size.
+     *
      * @param size The limit of the buffer to obtain.
      * @return The sliced byte buffer.
      */
@@ -96,6 +99,7 @@ public class PacketBuffer {
 
     /**
      * Retrieves a block of data at the current position from the underlying byte buffer.
+     *
      * @param size The size of the data block to allocate.
      * @return The allocated data block.
      */

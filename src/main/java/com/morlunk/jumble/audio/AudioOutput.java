@@ -18,7 +18,6 @@
 package com.morlunk.jumble.audio;
 
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Handler;
 import android.os.Looper;
@@ -46,11 +45,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * Created by andrew on 16/07/13.
- */
 public class AudioOutput implements Runnable, AudioOutputSpeech.TalkStateListener {
-    private Map<Integer,AudioOutputSpeech> mAudioOutputs = new HashMap<>();
+    private Map<Integer, AudioOutputSpeech> mAudioOutputs = new HashMap<>();
     private AudioTrack mAudioTrack;
     private int mBufferSize;
     private Thread mThread;
@@ -96,7 +92,7 @@ public class AudioOutput implements Runnable, AudioOutputSpeech.TalkStateListene
     }
 
     public void stopPlaying() {
-        if(!mRunning)
+        if (!mRunning)
             return;
 
         mRunning = false;
@@ -111,7 +107,7 @@ public class AudioOutput implements Runnable, AudioOutputSpeech.TalkStateListene
         mThread = null;
 
         mPacketLock.lock();
-        for(AudioOutputSpeech speech : mAudioOutputs.values()) {
+        for (AudioOutputSpeech speech : mAudioOutputs.values()) {
             speech.destroy();
         }
         mPacketLock.unlock();
@@ -134,8 +130,8 @@ public class AudioOutput implements Runnable, AudioOutputSpeech.TalkStateListene
 
         final short[] mix = new short[mBufferSize];
 
-        while(mRunning) {
-            if(fetchAudio(mix, 0, mBufferSize)) {
+        while (mRunning) {
+            if (fetchAudio(mix, 0, mBufferSize)) {
                 mAudioTrack.write(mix, 0, mBufferSize);
             } else {
                 Log.v(Constants.TAG, "Pausing audio output thread.");
@@ -162,9 +158,10 @@ public class AudioOutput implements Runnable, AudioOutputSpeech.TalkStateListene
     /**
      * Fetches audio data from registered audio output users and mixes them into the given buffer.
      * TODO: add priority speaker support.
-     * @param buffer The buffer to mix output data into.
+     *
+     * @param buffer       The buffer to mix output data into.
      * @param bufferOffset The offset of the
-     * @param bufferSize The size of the buffer.
+     * @param bufferSize   The size of the buffer.
      * @return true if the buffer contains audio data.
      */
     private boolean fetchAudio(short[] buffer, int bufferOffset, int bufferSize) {
@@ -175,7 +172,7 @@ public class AudioOutput implements Runnable, AudioOutputSpeech.TalkStateListene
             // Parallelize decoding using a fixed thread pool equal to the number of cores
             List<Future<AudioOutputSpeech.Result>> futureResults =
                     mDecodeExecutorService.invokeAll(mAudioOutputs.values());
-            for(Future<AudioOutputSpeech.Result> future : futureResults) {
+            for (Future<AudioOutputSpeech.Result> future : futureResults) {
                 AudioOutputSpeech.Result result = future.get();
                 if (result.isAlive()) {
                     sources.add(result);
@@ -204,7 +201,7 @@ public class AudioOutput implements Runnable, AudioOutputSpeech.TalkStateListene
     }
 
     public void queueVoiceData(byte[] data, JumbleUDPMessageType messageType) {
-        if(!mRunning)
+        if (!mRunning)
             return;
 
         byte msgFlags = (byte) (data[0] & 0x1f);
@@ -212,26 +209,26 @@ public class AudioOutput implements Runnable, AudioOutputSpeech.TalkStateListene
         pds.skip(1);
         int session = (int) pds.readLong();
         User user = mListener.getUser(session);
-        if(user != null && !user.isLocalMuted()) {
+        if (user != null && !user.isLocalMuted()) {
             // TODO check for whispers here
             int seq = (int) pds.readLong();
 
             // Synchronize so we don't destroy an output while we add a buffer to it.
             mPacketLock.lock();
             AudioOutputSpeech aop = mAudioOutputs.get(session);
-            if(aop != null && aop.getCodec() != messageType) {
+            if (aop != null && aop.getCodec() != messageType) {
                 aop.destroy();
                 aop = null;
             }
-            if(aop == null) {
+            if (aop == null) {
                 try {
                     aop = new AudioOutputSpeech(user, messageType, mBufferSize, this);
                 } catch (NativeAudioException e) {
-                    Log.v(Constants.TAG, "Failed to create audio user "+user.getName());
+                    Log.v(Constants.TAG, "Failed to create audio user " + user.getName());
                     e.printStackTrace();
                     return;
                 }
-                Log.v(Constants.TAG, "Created audio user "+user.getName());
+                Log.v(Constants.TAG, "Created audio user " + user.getName());
                 mAudioOutputs.put(session, aop);
             }
             mPacketLock.unlock();
@@ -252,7 +249,7 @@ public class AudioOutput implements Runnable, AudioOutputSpeech.TalkStateListene
             @Override
             public void run() {
                 final User user = mListener.getUser(session);
-                if(user != null && user.getTalkState() != state) {
+                if (user != null && user.getTalkState() != state) {
                     user.setTalkState(state);
                     mListener.onUserTalkStateUpdated(user);
                 }
@@ -260,17 +257,19 @@ public class AudioOutput implements Runnable, AudioOutputSpeech.TalkStateListene
         });
     }
 
-    public static interface AudioOutputListener {
+    public interface AudioOutputListener {
         /**
          * Called when a user's talking state is changed.
+         *
          * @param user The user whose talking state has been modified.
          */
-        public void onUserTalkStateUpdated(User user);
+        void onUserTalkStateUpdated(User user);
 
         /**
          * Used to set audio-related user data.
+         *
          * @return The user for the associated session.
          */
-        public User getUser(int session);
+        User getUser(int session);
     }
 }

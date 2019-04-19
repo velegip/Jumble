@@ -90,6 +90,7 @@ public class Server implements Parcelable {
 
     /**
      * Returns a user-defined name for the server, or the host if the user-defined name is not set.
+     *
      * @return A user readable name for the server.
      */
     public String getName() {
@@ -134,6 +135,7 @@ public class Server implements Parcelable {
 
     /**
      * Returns whether or not the server is stored in a database.
+     *
      * @return true if the server's ID is in the database.
      */
     public boolean isSaved() {

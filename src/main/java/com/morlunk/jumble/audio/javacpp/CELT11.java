@@ -28,10 +28,7 @@ import com.morlunk.jumble.protocol.AudioHandler;
 
 import java.nio.ByteBuffer;
 
-/**
- * Created by andrew on 20/10/13.
- */
-@Platform(library="jnicelt11", cinclude={"<celt.h>","<celt_types.h>"})
+@Platform(library = "jnicelt11", cinclude = {"<celt.h>", "<celt_types.h>"})
 public class CELT11 {
     public static final int CELT_GET_BITSTREAM_VERSION = 2000;
     public static final int CELT_SET_BITRATE_REQUEST = 6;
@@ -42,19 +39,29 @@ public class CELT11 {
     }
 
     public static native Pointer celt_mode_create(int sampleRate, int frameSize, IntPointer error);
+
     public static native int celt_mode_info(@Cast("const CELTMode*") Pointer mode, int request, IntPointer value);
+
     public static native void celt_mode_destroy(@Cast("CELTMode*") Pointer mode);
 
     public static native Pointer celt_decoder_create(int sampleRate, int channels, IntPointer error);
+
     public static native int celt_decode(@Cast("CELTDecoder*") Pointer st, @Cast("const unsigned char*") ByteBuffer data, int len, short[] pcm, int frameSize);
+
     public static native int celt_decode_float(@Cast("CELTDecoder*") Pointer st, @Cast("const unsigned char*") ByteBuffer data, int len, float[] pcm, int frameSize);
+
     public static native int celt_decoder_ctl(@Cast("CELTDecoder*") Pointer st, int request, Pointer val);
+
     public static native void celt_decoder_destroy(@Cast("CELTDecoder*") Pointer st);
 
     public static native Pointer celt_encoder_create(int sampleRate, int channels, IntPointer error);
-    public static native int celt_encoder_ctl(@Cast("CELTEncoder*")Pointer state, int request, Pointer val);
-    public static native int celt_encoder_ctl(@Cast("CELTEncoder*")Pointer state, int request, int val);
+
+    public static native int celt_encoder_ctl(@Cast("CELTEncoder*") Pointer state, int request, Pointer val);
+
+    public static native int celt_encoder_ctl(@Cast("CELTEncoder*") Pointer state, int request, int val);
+
     public static native int celt_encode(@Cast("CELTEncoder*") Pointer state, @Cast("const short*") short[] pcm, int frameSize, @Cast("unsigned char*") byte[] compressed, int maxCompressedBytes);
+
     public static native void celt_encoder_destroy(@Cast("CELTEncoder*") Pointer state);
 
     /**
@@ -76,20 +83,23 @@ public class CELT11 {
             IntPointer error = new IntPointer(1);
             error.put(0);
             mState = celt_decoder_create(sampleRate, channels, error);
-            if(error.get() < 0) throw new NativeAudioException("CELT 0.11.0 decoder initialization failed with error: "+error.get());
+            if (error.get() < 0)
+                throw new NativeAudioException("CELT 0.11.0 decoder initialization failed with error: " + error.get());
         }
 
         @Override
         public int decodeFloat(ByteBuffer input, int inputSize, float[] output, int frameSize) throws NativeAudioException {
             int result = celt_decode_float(mState, input, inputSize, output, frameSize);
-            if(result < 0) throw new NativeAudioException("CELT 0.11.0 decoding failed with error: "+result);
+            if (result < 0)
+                throw new NativeAudioException("CELT 0.11.0 decoding failed with error: " + result);
             return frameSize;
         }
 
         @Override
         public int decodeShort(ByteBuffer input, int inputSize, short[] output, int frameSize) throws NativeAudioException {
             int result = celt_decode(mState, input, inputSize, output, frameSize);
-            if(result < 0) throw new NativeAudioException("CELT 0.11.0 decoding failed with error: "+result);
+            if (result < 0)
+                throw new NativeAudioException("CELT 0.11.0 decoding failed with error: " + result);
             return frameSize;
         }
 

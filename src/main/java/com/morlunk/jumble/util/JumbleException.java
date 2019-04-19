@@ -22,9 +22,6 @@ import android.os.Parcelable;
 
 import com.morlunk.jumble.protobuf.Mumble;
 
-/**
- * Created by andrew on 14/07/13.
- */
 public class JumbleException extends Exception implements Parcelable {
 
     public static final Creator<JumbleException> CREATOR = new Creator<JumbleException>() {
@@ -40,9 +37,13 @@ public class JumbleException extends Exception implements Parcelable {
     };
 
     private JumbleDisconnectReason mReason;
-    /** Indicates that this exception was caused by a reject from the server. */
+    /**
+     * Indicates that this exception was caused by a reject from the server.
+     */
     private Mumble.Reject mReject;
-    /** Indicates that this exception was caused by being kicked/banned from the server. */
+    /**
+     * Indicates that this exception was caused by being kicked/banned from the server.
+     */
     private Mumble.UserRemove mUserRemove;
 
     public JumbleException(String message, Throwable e, JumbleDisconnectReason reason) {
@@ -61,13 +62,13 @@ public class JumbleException extends Exception implements Parcelable {
     }
 
     public JumbleException(Mumble.Reject reject) {
-        super("Reject: "+reject.getReason());
+        super("Reject: " + reject.getReason());
         mReject = reject;
         mReason = JumbleDisconnectReason.REJECT;
     }
 
     public JumbleException(Mumble.UserRemove userRemove) {
-        super((userRemove.getBan() ? "Banned: " : "Kicked: ")+userRemove.getReason());
+        super((userRemove.getBan() ? "Banned: " : "Kicked: ") + userRemove.getReason());
         mUserRemove = userRemove;
         mReason = JumbleDisconnectReason.USER_REMOVE;
     }
@@ -87,9 +88,15 @@ public class JumbleException extends Exception implements Parcelable {
         return mReject;
     }
 
+    public boolean isAuthenticationFailure() {
+        return getReject().getType() == Mumble.Reject.RejectType.WrongUserPW ||
+                getReject().getType() == Mumble.Reject.RejectType.WrongServerPW;
+    }
+
     public Mumble.UserRemove getUserRemove() {
         return mUserRemove;
     }
+
     @Override
     public int describeContents() {
         return 0;

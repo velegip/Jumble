@@ -27,7 +27,6 @@ import com.morlunk.jumble.model.Server;
 
 /**
  * Tests to ensure the integrity of {@link JumbleService}'s state.
- * Created by andrew on 02/02/15.
  */
 public class JumbleServiceTest extends ServiceTestCase<JumbleService> {
     private static final Server DUMMY_SERVER = new Server(-1, "dummy","example.com", 64738,

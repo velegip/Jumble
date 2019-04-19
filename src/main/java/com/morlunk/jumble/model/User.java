@@ -48,7 +48,9 @@ public class User implements IUser, Comparable<User> {
     private boolean mLocalMuted;
     private boolean mLocalIgnored;
 
-    /** The number of samples normally available from the user. */
+    /**
+     * The number of samples normally available from the user.
+     */
     private float mAverageAvailable;
 
     public User() {
@@ -72,6 +74,7 @@ public class User implements IUser, Comparable<User> {
 
     /**
      * Changes the user's channel, removing them from their last channel (if set).
+     *
      * @param channel The user's new channel.
      */
     public void setChannel(Channel channel) {
@@ -252,9 +255,7 @@ public class User implements IUser, Comparable<User> {
 
         User user = (User) o;
 
-        if (mSession != user.mSession) return false;
-
-        return true;
+        return mSession == user.mSession;
     }
 
     @Override

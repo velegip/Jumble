@@ -17,10 +17,6 @@
 
 package com.morlunk.jumble.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.text.format.Time;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -30,7 +26,6 @@ import java.util.List;
  * A class encapsulating a text message from a Mumble server.
  * NOTE: Always prefer using getActorName(). You CANNOT rely on getActor() to provide this info,
  * as the actor may no longer be on the server.
- * Created by andrew on 03/12/13.
  */
 public class Message implements IMessage {
     private int mActor;
@@ -58,6 +53,7 @@ public class Message implements IMessage {
         mTrees = trees;
         mUsers = users;
     }
+
     @Override
     public int getActor() {
         return mActor;
@@ -109,9 +105,7 @@ public class Message implements IMessage {
         if (mMessage != null ? !mMessage.equals(message.mMessage) : message.mMessage != null)
             return false;
         if (mTrees != null ? !mTrees.equals(message.mTrees) : message.mTrees != null) return false;
-        if (mUsers != null ? !mUsers.equals(message.mUsers) : message.mUsers != null) return false;
-
-        return true;
+        return mUsers != null ? mUsers.equals(message.mUsers) : message.mUsers == null;
     }
 
     @Override
@@ -128,6 +122,7 @@ public class Message implements IMessage {
 
     /**
      * The type of message this object represents.
+     *
      * @deprecated
      */
     public enum Type {

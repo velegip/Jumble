@@ -50,11 +50,10 @@ import com.morlunk.jumble.util.JumbleNetworkListener;
  * Changes to input/output instance vars after the audio threads have been initialized will recreate
  * them in most cases (they're immutable for the purpose of avoiding threading issues).
  * Calling shutdown() will cleanup both input and output threads. It is safe to restart after.
- * Created by andrew on 23/04/14.
  */
 public class AudioHandler extends JumbleNetworkListener implements AudioInput.AudioInputListener {
     public static final int SAMPLE_RATE = 48000;
-    public static final int FRAME_SIZE = SAMPLE_RATE/100;
+    public static final int FRAME_SIZE = SAMPLE_RATE / 100;
     public static final int MAX_BUFFER_SIZE = 960;
 
     private final Context mContext;
@@ -79,12 +78,16 @@ public class AudioHandler extends JumbleNetworkListener implements AudioInput.Au
     private final float mAmplitudeBoost;
 
     private boolean mInitialized;
-    /** True if the user is muted on the server. */
+    /**
+     * True if the user is muted on the server.
+     */
     private boolean mMuted;
     private boolean mBluetoothOn;
     private boolean mHalfDuplex;
     private boolean mPreprocessorEnabled;
-    /** The last observed talking state. False if muted, or the input mode is not active. */
+    /**
+     * The last observed talking state. False if muted, or the input mode is not active.
+     */
     private boolean mTalking;
 
     private final Object mEncoderLock;
@@ -125,7 +128,7 @@ public class AudioHandler extends JumbleNetworkListener implements AudioInput.Au
      * Will create both the input and output modules if they haven't been created yet.
      */
     public synchronized void initialize(User self, int maxBandwidth, JumbleUDPMessageType codec) throws AudioException {
-        if(mInitialized) return;
+        if (mInitialized) return;
         mSession = self.getSession();
 
         setMaxBandwidth(maxBandwidth);
@@ -141,6 +144,7 @@ public class AudioHandler extends JumbleNetworkListener implements AudioInput.Au
 
     /**
      * Starts a recording AudioInput thread.
+     *
      * @throws AudioException if the input thread failed to initialize, or if a thread was already
      *                        recording.
      */
@@ -156,6 +160,7 @@ public class AudioHandler extends JumbleNetworkListener implements AudioInput.Au
 
     /**
      * Stops the recording AudioInput thread.
+     *
      * @throws AudioException if there was no thread recording.
      */
     private void stopRecording() throws AudioException {
@@ -170,6 +175,7 @@ public class AudioHandler extends JumbleNetworkListener implements AudioInput.Au
 
     /**
      * Sets whether or not the server wants the client muted.
+     *
      * @param muted Whether the user is muted on the server.
      */
     private void setServerMuted(boolean muted) throws AudioException {
@@ -178,6 +184,7 @@ public class AudioHandler extends JumbleNetworkListener implements AudioInput.Au
 
     /**
      * Returns whether or not the handler has been initialized.
+     *
      * @return true if the handler is ready to play and record audio.
      */
     public boolean isInitialized() {
@@ -254,6 +261,7 @@ public class AudioHandler extends JumbleNetworkListener implements AudioInput.Au
     /**
      * Sets the maximum bandwidth available for audio input as obtained from the server.
      * Adjusts the bitrate and frames per packet accordingly to meet the server's requirement.
+     *
      * @param maxBandwidth The server-reported maximum bandwidth, in bps.
      */
     private void setMaxBandwidth(int maxBandwidth) throws AudioException {
@@ -284,7 +292,7 @@ public class AudioHandler extends JumbleNetworkListener implements AudioInput.Au
             mFramesPerPacket = framesPerPacket;
 
             mLogger.logInfo(mContext.getString(R.string.audio_max_bandwidth,
-                    maxBandwidth/1000, maxBandwidth/1000, framesPerPacket * 10));
+                    maxBandwidth / 1000, maxBandwidth / 1000, framesPerPacket * 10));
         }
     }
 
@@ -299,6 +307,7 @@ public class AudioHandler extends JumbleNetworkListener implements AudioInput.Au
     /**
      * Returns whether or not the audio handler is operating in half duplex mode, muting outgoing
      * audio when incoming audio is received.
+     *
      * @return true if the handler is in half duplex mode.
      */
     public boolean isHalfDuplex() {
@@ -488,6 +497,7 @@ public class AudioHandler extends JumbleNetworkListener implements AudioInput.Au
 
     public interface AudioEncodeListener {
         void onAudioEncoded(byte[] data, int length);
+
         void onTalkingStateChanged(boolean talking);
     }
 
@@ -582,6 +592,7 @@ public class AudioHandler extends JumbleNetworkListener implements AudioInput.Au
 
         /**
          * Creates a new AudioHandler for the given session and begins managing input/output.
+         *
          * @return An initialized audio handler.
          */
         public AudioHandler initialize(User self, int maxBandwidth, JumbleUDPMessageType codec, byte targetId) throws AudioException {

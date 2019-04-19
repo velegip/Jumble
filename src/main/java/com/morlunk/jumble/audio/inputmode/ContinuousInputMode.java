@@ -19,7 +19,6 @@ package com.morlunk.jumble.audio.inputmode;
 
 /**
  * An input mode that always transmits audio.
- * Created by andrew on 13/02/16.
  */
 public class ContinuousInputMode implements IInputMode {
     @Override

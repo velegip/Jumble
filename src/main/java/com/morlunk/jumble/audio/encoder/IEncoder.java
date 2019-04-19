@@ -25,43 +25,44 @@ import java.nio.BufferUnderflowException;
 /**
  * IEncoder provides an interface for native audio encoders to buffer and serve encoded audio
  * data.
- * Created by andrew on 07/03/14.
  */
 public interface IEncoder {
     /**
      * Encodes the provided input and returns the number of bytes encoded.
-     * @param input The short PCM data to encode.
+     *
+     * @param input     The short PCM data to encode.
      * @param inputSize The number of samples to encode.
      * @return The number of bytes encoded.
      * @throws NativeAudioException if there was an error encoding.
      */
-    public int encode(short[] input, int inputSize) throws NativeAudioException;
+    int encode(short[] input, int inputSize) throws NativeAudioException;
 
     /**
      * @return the number of audio frames buffered.
      */
-    public int getBufferedFrames();
+    int getBufferedFrames();
 
     /**
      * @return true if enough buffered audio has been encoded to send to the server.
      */
-    public boolean isReady();
+    boolean isReady();
 
     /**
      * Writes the currently encoded audio data into the provided {@link PacketBuffer}.
      * Use {@link #isReady()} to determine whether or not this should be called.
+     *
      * @throws BufferUnderflowException if insufficient audio data has been buffered.
      */
-    public void getEncodedData(PacketBuffer packetBuffer) throws BufferUnderflowException;
+    void getEncodedData(PacketBuffer packetBuffer) throws BufferUnderflowException;
 
     /**
      * Informs the encoder that there are no more audio packets to be queued. Often, this will
      * trigger an encode operation, changing the result of {@link #isReady()}.
      */
-    public void terminate() throws NativeAudioException;
+    void terminate() throws NativeAudioException;
 
     /**
      * Destroys the encoder, cleaning up natively allocated resources.
      */
-    public void destroy();
+    void destroy();
 }

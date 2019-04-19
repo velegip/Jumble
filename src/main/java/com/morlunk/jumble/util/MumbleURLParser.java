@@ -26,8 +26,8 @@ import java.util.regex.Pattern;
 
 /**
  * An implementation of the Mumble URL scheme.
+ *
  * @see <a href="http://mumble.sourceforge.net/Mumble_URL">http://mumble.sourceforge.net/Mumble_URL</a>
- * Created by andrew on 03/03/14.
  */
 public class MumbleURLParser {
 
@@ -35,13 +35,14 @@ public class MumbleURLParser {
 
     /**
      * Parses the passed Mumble URL into a Server object.
+     *
      * @param url A URL with the Mumble scheme.
      * @return A server with the data specified in the Mumble URL.
      * @throws MalformedURLException if the URL cannot be parsed.
      */
     public static Server parseURL(String url) throws MalformedURLException {
         Matcher matcher = URL_PATTERN.matcher(url);
-        if(matcher.find()) {
+        if (matcher.find()) {
             String username = matcher.group(2);
             String password = matcher.group(4);
             String host = matcher.group(5);

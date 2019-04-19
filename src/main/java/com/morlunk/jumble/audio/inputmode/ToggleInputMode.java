@@ -27,7 +27,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * An input mode that depends on a toggle, such as push to talk.
- * Created by andrew on 13/02/16.
  */
 public class ToggleInputMode implements IInputMode {
     private boolean mInputOn;

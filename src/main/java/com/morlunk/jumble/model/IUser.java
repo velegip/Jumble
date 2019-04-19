@@ -17,9 +17,6 @@
 
 package com.morlunk.jumble.model;
 
-/**
- * Created by andrew on 15/10/15.
- */
 public interface IUser {
     int getSession();
 

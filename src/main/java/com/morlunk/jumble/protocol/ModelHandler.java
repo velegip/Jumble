@@ -18,9 +18,6 @@
 package com.morlunk.jumble.protocol;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.RemoteException;
 import android.util.Log;
 
 import com.morlunk.jumble.Constants;
@@ -29,7 +26,6 @@ import com.morlunk.jumble.model.Channel;
 import com.morlunk.jumble.model.Message;
 import com.morlunk.jumble.model.User;
 import com.morlunk.jumble.protobuf.Mumble;
-import com.morlunk.jumble.protocol.JumbleTCPMessageListener;
 import com.morlunk.jumble.util.IJumbleObserver;
 import com.morlunk.jumble.util.JumbleLogger;
 import com.morlunk.jumble.util.MessageFormatter;
@@ -38,7 +34,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +41,6 @@ import java.util.Map;
 /**
  * Handles network messages related to the user-channel tree model.
  * This includes channels, users, messages, and permissions.
- * Created by andrew on 18/07/13.
  */
 public class ModelHandler extends JumbleTCPMessageListener.Stub {
     private final Context mContext;
@@ -82,6 +76,7 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
     /**
      * Creates a stub channel with the given ID.
      * Useful for keeping user references when we get a UserState message before a ChannelState.
+     *
      * @param id The channel ID.
      * @return The newly created stub channel.
      */
@@ -101,6 +96,7 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
 
     /**
      * Returns the current user's permissions.
+     *
      * @return The server-wide permissions.
      */
     public int getPermissions() {
@@ -114,7 +110,7 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
 
     @Override
     public void messageChannelState(Mumble.ChannelState msg) {
-        if(!msg.hasChannelId())
+        if (!msg.hasChannelId())
             return;
 
         Channel channel = mChannels.get(msg.getChannelId());
@@ -122,35 +118,35 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
 
         final boolean newChannel = channel == null;
 
-        if(channel == null) {
+        if (channel == null) {
             channel = new Channel(msg.getChannelId(), msg.getTemporary());
             mChannels.put(msg.getChannelId(), channel);
         }
 
-        if(msg.hasName())
+        if (msg.hasName())
             channel.setName(msg.getName());
 
-        if(msg.hasPosition())
+        if (msg.hasPosition())
             channel.setPosition(msg.getPosition());
 
-        if(msg.hasParent()) {
+        if (msg.hasParent()) {
             Channel oldParent = channel.getParent();
             channel.setParent(parent);
             parent.addSubchannel(channel);
-            if(oldParent != null) {
+            if (oldParent != null) {
                 oldParent.removeSubchannel(channel);
             }
         }
 
-        if(msg.hasDescriptionHash())
+        if (msg.hasDescriptionHash())
             channel.setDescriptionHash(msg.getDescriptionHash().toByteArray());
 
-        if(msg.hasDescription())
+        if (msg.hasDescription())
             channel.setDescription(msg.getDescription());
 
-        if(msg.getLinksCount() > 0) {
+        if (msg.getLinksCount() > 0) {
             channel.clearLinks();
-            for(int link : msg.getLinksList()) {
+            for (int link : msg.getLinksList()) {
                 Channel linked = mChannels.get(link);
                 channel.addLink(linked);
                 // Don't add this channel to the other channel's link list- this update occurs on
@@ -159,23 +155,23 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
             }
         }
 
-        if(msg.getLinksRemoveCount() > 0) {
-            for(int link : msg.getLinksRemoveList()) {
+        if (msg.getLinksRemoveCount() > 0) {
+            for (int link : msg.getLinksRemoveList()) {
                 Channel linked = mChannels.get(link);
                 channel.removeLink(linked);
                 linked.removeLink(channel);
             }
         }
 
-        if(msg.getLinksAddCount() > 0) {
-            for(int link : msg.getLinksAddList()) {
+        if (msg.getLinksAddCount() > 0) {
+            for (int link : msg.getLinksAddList()) {
                 Channel linked = mChannels.get(link);
                 channel.addLink(linked);
                 linked.addLink(channel);
             }
         }
 
-        if(newChannel)
+        if (newChannel)
             mObserver.onChannelAdded(channel);
         else
             mObserver.onChannelStateUpdated(channel);
@@ -184,10 +180,10 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
     @Override
     public void messageChannelRemove(Mumble.ChannelRemove msg) {
         final Channel channel = mChannels.get(msg.getChannelId());
-        if(channel != null && channel.getId() != 0) {
+        if (channel != null && channel.getId() != 0) {
             mChannels.remove(channel.getId());
             Channel parent = channel.getParent();
-            if(parent != null) {
+            if (parent != null) {
                 parent.removeSubchannel(channel);
             }
             mObserver.onChannelRemoved(channel);
@@ -196,14 +192,14 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
 
     @Override
     public void messagePermissionQuery(Mumble.PermissionQuery msg) {
-        if(msg.getFlush())
-            for(Channel channel : mChannels.values())
+        if (msg.getFlush())
+            for (Channel channel : mChannels.values())
                 channel.setPermissions(0);
 
         final Channel channel = mChannels.get(msg.getChannelId());
-        if(channel != null) {
+        if (channel != null) {
             channel.setPermissions(msg.getPermissions());
-            if(msg.getChannelId() == 0) // If we're provided permissions for the root channel, we'll apply these as our server permissions.
+            if (msg.getChannelId() == 0) // If we're provided permissions for the root channel, we'll apply these as our server permissions.
                 mPermissions = channel.getPermissions();
             mObserver.onChannelPermissionsUpdated(channel);
         }
@@ -216,27 +212,26 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
 
         User self = mUsers.get(mSession);
 
-        if(user == null) {
-            if(msg.hasName()) {
+        if (user == null) {
+            if (msg.hasName()) {
                 user = new User(msg.getSession(), msg.getName());
                 mUsers.put(msg.getSession(), user);
                 newUser = true;
                 // Add user to root channel by default. This works because for some reason, we don't get a channel ID when the user joins into root.
                 Channel root = mChannels.get(0);
-                if(root == null) root = createStubChannel(0);
+                if (root == null) root = createStubChannel(0);
                 user.setChannel(root);
-            }
-            else
+            } else
                 return;
         }
 
         User actor = null;
-        if(msg.hasActor())
+        if (msg.hasActor())
             actor = getUser(msg.getActor());
 
         final User finalUser = user;
 
-        if(msg.hasUserId()) {
+        if (msg.hasUserId()) {
             user.setUserId(msg.getUserId());
             // Restore local mute and ignore from history
             if (mLocalMuteHistory != null && mLocalMuteHistory.contains(user.getUserId())) {
@@ -247,7 +242,7 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
             }
         }
 
-        if(msg.hasHash()) {
+        if (msg.hasHash()) {
             user.setHash(msg.getHash());
 
             /*
@@ -257,46 +252,46 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
              */
         }
 
-        if(newUser)
+        if (newUser)
             mLogger.logInfo(mContext.getString(R.string.chat_notify_connected, MessageFormatter.highlightString(user.getName())));
 
-        if(msg.hasSelfDeaf() || msg.hasSelfMute()) {
-            if(msg.hasSelfMute())
+        if (msg.hasSelfDeaf() || msg.hasSelfMute()) {
+            if (msg.hasSelfMute())
                 user.setSelfMuted(msg.getSelfMute());
-            if(msg.hasSelfDeaf())
+            if (msg.hasSelfDeaf())
                 user.setSelfDeafened(msg.getSelfDeaf());
 
-            if(self != null && user.getSession() != self.getSession() && user.getChannel().equals(self.getChannel())) {
-                if(user.isSelfMuted() && user.isSelfDeafened())
+            if (self != null && user.getSession() != self.getSession() && user.getChannel().equals(self.getChannel())) {
+                if (user.isSelfMuted() && user.isSelfDeafened())
                     mLogger.logInfo(mContext.getString(R.string.chat_notify_now_muted_deafened, MessageFormatter.highlightString(user.getName())));
-                else if(user.isSelfMuted())
+                else if (user.isSelfMuted())
                     mLogger.logInfo(mContext.getString(R.string.chat_notify_now_muted, MessageFormatter.highlightString(user.getName())));
                 else
                     mLogger.logInfo(mContext.getString(R.string.chat_notify_now_unmuted, MessageFormatter.highlightString(user.getName())));
-            } else if(self != null && user.getSession() == self.getSession()) {
-                if(user.isSelfMuted() && user.isSelfDeafened())
+            } else if (self != null && user.getSession() == self.getSession()) {
+                if (user.isSelfMuted() && user.isSelfDeafened())
                     mLogger.logInfo(mContext.getString(R.string.chat_notify_muted_deafened, MessageFormatter.highlightString(user.getName())));
-                else if(user.isSelfMuted())
+                else if (user.isSelfMuted())
                     mLogger.logInfo(mContext.getString(R.string.chat_notify_muted, MessageFormatter.highlightString(user.getName())));
                 else
                     mLogger.logInfo(mContext.getString(R.string.chat_notify_unmuted, MessageFormatter.highlightString(user.getName())));
             }
         }
 
-        if(msg.hasRecording()) {
+        if (msg.hasRecording()) {
             user.setRecording(msg.getRecording());
 
-            if(self != null) {
-                if(user.getSession() == self.getSession()) {
-                    if(user.isRecording())
+            if (self != null) {
+                if (user.getSession() == self.getSession()) {
+                    if (user.isRecording())
                         mLogger.logInfo(mContext.getString(R.string.chat_notify_self_recording_started));
                     else
                         mLogger.logInfo(mContext.getString(R.string.chat_notify_self_recording_stopped));
                 } else {
                     Channel selfChannel = self.getChannel();
                     // If in a linked channel OR the same channel as the current user, notify the user about recording
-                    if(selfChannel != null && (selfChannel.getLinks().contains(selfChannel) || selfChannel.equals(user.getChannel()))) {
-                        if(user.isRecording())
+                    if (selfChannel != null && (selfChannel.getLinks().contains(selfChannel) || selfChannel.equals(user.getChannel()))) {
+                        if (user.isRecording())
                             mLogger.logInfo(mContext.getString(R.string.chat_notify_user_recording_started, MessageFormatter.highlightString(user.getName())));
                         else
                             mLogger.logInfo(mContext.getString(R.string.chat_notify_user_recording_stopped, MessageFormatter.highlightString(user.getName())));
@@ -305,14 +300,14 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
             }
         }
 
-        if(msg.hasDeaf() || msg.hasMute() || msg.hasSuppress() || msg.hasPrioritySpeaker()) {
-            if(msg.hasDeaf())
+        if (msg.hasDeaf() || msg.hasMute() || msg.hasSuppress() || msg.hasPrioritySpeaker()) {
+            if (msg.hasDeaf())
                 user.setDeafened(msg.getDeaf());
-            if(msg.hasMute())
+            if (msg.hasMute())
                 user.setMuted(msg.getMute());
-            if(msg.hasSuppress())
+            if (msg.hasSuppress())
                 user.setSuppressed(msg.getSuppress());
-            if(msg.hasPrioritySpeaker())
+            if (msg.hasPrioritySpeaker())
                 user.setPrioritySpeaker(msg.getPrioritySpeaker());
 
 //            if(self != null && ((user.getChannelId() == self.getChannelId()) || (actor.getSessionId() == self.getSessionId()))) {
@@ -329,9 +324,9 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
              */
         }
 
-        if(msg.hasChannelId()) {
+        if (msg.hasChannelId()) {
             final Channel channel = mChannels.get(msg.getChannelId());
-            if(channel == null) {
+            if (channel == null) {
                 Log.e(Constants.TAG, "Invalid channel for user!");
                 return; // TODO handle better
             }
@@ -339,7 +334,7 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
 
             user.setChannel(channel);
 
-            if(!newUser) {
+            if (!newUser) {
                 mObserver.onUserJoinedChannel(finalUser, channel, old);
             }
 
@@ -349,18 +344,18 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
             if (self != null && sessionChannel != null && old != null && !self.equals(user)) {
                 // TODO add logic for other user moving self
                 String actorString = actor != null ? MessageFormatter.highlightString(actor.getName()) : mContext.getString(R.string.the_server);
-                if(!sessionChannel.equals(channel) && sessionChannel.equals(old)) {
+                if (!sessionChannel.equals(channel) && sessionChannel.equals(old)) {
                     // User moved out of self's channel
-                    if(actor != null && actor.getSession() == user.getSession()) {
+                    if (actor != null && actor.getSession() == user.getSession()) {
                         // By themselves
                         mLogger.logInfo(mContext.getString(R.string.chat_notify_user_left_channel, MessageFormatter.highlightString(user.getName()), MessageFormatter.highlightString(channel.getName())));
                     } else {
                         // By external actor
                         mLogger.logInfo(mContext.getString(R.string.chat_notify_user_left_channel_by, MessageFormatter.highlightString(user.getName()), MessageFormatter.highlightString(channel.getName()), actorString));
                     }
-                } else if(sessionChannel.equals(channel)) {
+                } else if (sessionChannel.equals(channel)) {
                     // User moved into self's channel
-                    if(actor != null && actor.getSession() == user.getSession()) {
+                    if (actor != null && actor.getSession() == user.getSession()) {
                         // By themselves
                         mLogger.logInfo(mContext.getString(R.string.chat_notify_user_joined_channel, MessageFormatter.highlightString(user.getName())));
                     } else {
@@ -376,7 +371,7 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
              */
         }
 
-        if(msg.hasName())
+        if (msg.hasName())
             user.setName(msg.getName());
 
         if (msg.hasTextureHash()) {
@@ -389,10 +384,10 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
             user.setTexture(msg.getTexture());
         }
 
-        if(msg.hasCommentHash())
+        if (msg.hasCommentHash())
             user.setCommentHash(msg.getCommentHash());
 
-        if(msg.hasComment())
+        if (msg.hasComment())
             user.setComment(msg.getComment());
 
         if (newUser)
@@ -404,17 +399,20 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
     @Override
     public void messageUserRemove(Mumble.UserRemove msg) {
         final User user = mUsers.get(msg.getSession());
+        String userName = user == null ? mContext.getString(R.string.a_user) : user.getName();
         final User actor = mUsers.get(msg.getActor());
+        String actorName = actor == null ? mContext.getString(R.string.a_admin) : actor.getName();
+
         final String reason = msg.getReason();
 
-        if(msg.getSession() == mSession)
-            mLogger.logWarning(mContext.getString(msg.getBan() ? R.string.chat_notify_kick_ban_self : R.string.chat_notify_kick_self, MessageFormatter.highlightString(actor.getName()), reason));
-        else if(actor != null)
-            mLogger.logWarning(mContext.getString(msg.getBan() ? R.string.chat_notify_kick_ban : R.string.chat_notify_kick, MessageFormatter.highlightString(actor.getName()), reason, MessageFormatter.highlightString(user.getName())));
+        if (msg.getSession() == mSession)
+            mLogger.logWarning(mContext.getString(msg.getBan() ? R.string.chat_notify_kick_ban_self : R.string.chat_notify_kick_self, MessageFormatter.highlightString(actorName), reason));
+        else if (actor != null)
+            mLogger.logWarning(mContext.getString(msg.getBan() ? R.string.chat_notify_kick_ban : R.string.chat_notify_kick, MessageFormatter.highlightString(actorName), reason, MessageFormatter.highlightString(userName)));
         else
-            mLogger.logInfo(mContext.getString(R.string.chat_notify_disconnected, MessageFormatter.highlightString(user.getName())));
+            mLogger.logInfo(mContext.getString(R.string.chat_notify_disconnected, MessageFormatter.highlightString(userName)));
 
-        user.setChannel(null);
+        if (user != null) user.setChannel(null);
         mObserver.onUserRemoved(user, reason);
     }
 
@@ -444,7 +442,8 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
                 reason = mContext.getString(R.string.deny_reason_channel_nesting);
                 break;
             default:
-                if(msg.hasReason()) reason = mContext.getString(R.string.deny_reason_other, msg.getReason());
+                if (msg.hasReason())
+                    reason = mContext.getString(R.string.deny_reason_other, msg.getReason());
                 else reason = mContext.getString(R.string.perm_denied);
 
         }
@@ -455,15 +454,15 @@ public class ModelHandler extends JumbleTCPMessageListener.Stub {
     public void messageTextMessage(Mumble.TextMessage msg) {
         User sender = mUsers.get(msg.getActor());
 
-        if(sender != null && sender.isLocalIgnored())
+        if (sender != null && sender.isLocalIgnored())
             return;
 
         List<Channel> channels = new ArrayList<Channel>(msg.getChannelIdCount());
-        for(int channelId : msg.getChannelIdList()) channels.add(mChannels.get(channelId));
+        for (int channelId : msg.getChannelIdList()) channels.add(mChannels.get(channelId));
         List<Channel> trees = new ArrayList<Channel>(msg.getTreeIdCount());
-        for(int treeId : msg.getTreeIdList()) trees.add(mChannels.get(treeId));
+        for (int treeId : msg.getTreeIdList()) trees.add(mChannels.get(treeId));
         List<User> users = new ArrayList<User>(msg.getSessionCount());
-        for(int userId : msg.getSessionList()) users.add(mUsers.get(userId));
+        for (int userId : msg.getSessionList()) users.add(mUsers.get(userId));
 
         String actorName = sender != null ? sender.getName() : mContext.getString(R.string.server);
 

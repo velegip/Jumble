@@ -32,9 +32,8 @@ import java.nio.ByteBuffer;
 
 /**
  * JavaCPP interface for Speex JNI.
- * Created by andrew on 18/10/13.
  */
-@Platform(library= "jnispeex", cinclude={"<speex/speex.h>","<speex/speex_types.h>", "<speex/speex_bits.h>","<speex/speex_jitter.h>", "<speex/speex_preprocess.h>", "<speex/speex_resampler.h>"})
+@Platform(library = "jnispeex", cinclude = {"<speex/speex.h>", "<speex/speex_types.h>", "<speex/speex_bits.h>", "<speex/speex_jitter.h>", "<speex/speex_preprocess.h>", "<speex/speex_resampler.h>"})
 public class Speex {
 
     /**
@@ -46,7 +45,7 @@ public class Speex {
      */
     public static final int SPEEX_GET_ENH = 1;
 
-/*Would be SPEEX_SET_FRAME_SIZE, but it's (currently) invalid*/
+    /*Would be SPEEX_SET_FRAME_SIZE, but it's (currently) invalid*/
     /**
      * Obtain frame size used by encoder/decoder
      */
@@ -57,7 +56,7 @@ public class Speex {
     public static final int SPEEX_SET_QUALITY = 4;
 
 /** Get current quality setting */
-/* public static final int SPEEX_GET_QUALITY = 5; -- Doesn't make much sense, does it? */
+    /* public static final int SPEEX_GET_QUALITY = 5; -- Doesn't make much sense, does it? */
 
     /**
      * Set sub-mode to use
@@ -172,7 +171,7 @@ public class Speex {
      */
     public static final int SPEEX_GET_SUBMODE_ENCODING = 37;
 
-/*public static final int SPEEX_SET_LOOKAHEAD = 38;*/
+    /*public static final int SPEEX_SET_LOOKAHEAD = 38;*/
     /**
      * Returns the lookahead used by Speex separately for an encoder and a decoder.
      * Sum encoder and decoder lookahead values to get the total codec lookahead.
@@ -208,16 +207,24 @@ public class Speex {
      */
     public static final int SPEEX_GET_ACTIVITY = 47;
 
-    /** Number of defined modes in Speex */
+    /**
+     * Number of defined modes in Speex
+     */
     public static final int SPEEX_NB_MODES = 3;
 
-    /** modeID for the defined narrowband mode */
+    /**
+     * modeID for the defined narrowband mode
+     */
     public static final int SPEEX_MODEID_NB = 0;
 
-    /** modeID for the defined wideband mode */
+    /**
+     * modeID for the defined wideband mode
+     */
     public static final int SPEEX_MODEID_WB = 1;
 
-    /** modeID for the defined ultra-wideband mode */
+    /**
+     * modeID for the defined ultra-wideband mode
+     */
     public static final int SPEEX_MODEID_UWB = 2;
 
     static {
@@ -226,45 +233,68 @@ public class Speex {
 
     // Resampler
     private static native Pointer speex_resampler_init(int channels, int inSampleRate, int outSampleRate, int quality, IntPointer error);
+
     private static native int speex_resampler_process_int(@Cast("SpeexResamplerState*") Pointer state, int channelIndex, @Cast("short*") short[] in, @Cast("unsigned int*") int[] inLen, @Cast("short*") short[] out, @Cast("unsigned int*") int[] outLen);
+
     private static native void speex_resampler_destroy(@Cast("SpeexResamplerState*") Pointer state);
 
     // Jitter buffer
     private static native Pointer jitter_buffer_init(int tick);
+
     private static native void jitter_buffer_reset(@Cast("JitterBuffer*") Pointer jitterBuffer);
+
     private static native void jitter_buffer_destroy(@Cast("JitterBuffer*") Pointer jitterBuffer);
+
     private static native void jitter_buffer_put(@Cast("JitterBuffer*") Pointer jitterBuffer, JitterBufferPacket packet);
+
     private static native int jitter_buffer_get(@Cast("JitterBuffer*") Pointer jitterBuffer, JitterBufferPacket packet, int frameSize, IntPointer startOffset);
+
     private static native int jitter_buffer_get_pointer_timestamp(@Cast("JitterBuffer*") Pointer jitterBuffer);
+
     private static native void jitter_buffer_tick(@Cast("JitterBuffer*") Pointer jitterBuffer);
+
     private static native int jitter_buffer_ctl(@Cast("JitterBuffer*") Pointer jitterBuffer, int request, @Cast("void *") Pointer pointer);
+
     private static native int jitter_buffer_update_delay(@Cast("JitterBuffer*") Pointer jitterBuffer, JitterBufferPacket packet, IntPointer startOffset);
 
     // Preprocessor
     private static native Pointer speex_preprocess_state_init(int frameSize, int samplingRate);
+
     private static native void speex_preprocess_state_destroy(@Cast("SpeexPreprocessState*") Pointer state);
-    private static native int speex_preprocess_run(@Cast("SpeexPreprocessState*") Pointer state, short x[]);
+
+    private static native int speex_preprocess_run(@Cast("SpeexPreprocessState*") Pointer state, short[] x);
+
     private static native int speex_preprocess(@Cast("SpeexPreprocessState*") Pointer state, short[] x, int[] echo);
+
     private static native void speex_preprocess_estimate_update(@Cast("SpeexPreprocessState*") Pointer state, short[] x);
+
     private static native int speex_preprocess_ctl(@Cast("SpeexPreprocessState*") Pointer state, int request, Pointer ptr);
 
     // Bits
     private static native void speex_bits_init(@Cast("SpeexBits*") SpeexBits bits);
+
     private static native void speex_bits_read_from(@Cast("SpeexBits*") SpeexBits bits, @Cast("const char*") ByteBuffer data, int size);
+
     private static native void speex_bits_destroy(@Cast("SpeexBits*") SpeexBits bits);
 
     // Modes
-    public static native @Cast("const void*") Pointer speex_lib_get_mode(int mode);
+    public static native @Cast("const void*")
+    Pointer speex_lib_get_mode(int mode);
 
     // Decoder
     public static native Pointer speex_decoder_init(@Cast("const SpeexMode*") Pointer mode);
+
     public static native void speex_decoder_ctl(Pointer state, int request, Pointer value);
+
     public static native int speex_decode(Pointer state, @Cast("SpeexBits*") SpeexBits bits, float[] out);
+
     public static native void speex_decoder_destroy(Pointer state);
 
     // Encoder
     public static native Pointer speex_encoder_init(@Cast("const SpeexMode*") Pointer mode);
+
     public static native void speex_encoder_ctl(Pointer state, int request, Pointer value);
+
     public static native void speex_encoder_destroy(Pointer state);
 
     @Name("_JitterBufferPacket")
@@ -292,19 +322,58 @@ public class Speex {
 
         private native void allocate();
 
-        @MemberGetter @Name("data") public native @Cast("char *") ByteBuffer getData();
-        @MemberSetter @Name("data") public native void setData(@Cast("char *") ByteBuffer data);
-        @MemberSetter @Name("data") public native void setData(@Cast("char *") byte[] data);
-        @MemberGetter @Name("len") public native int getLength();
-        @MemberSetter @Name("len") public native void setLength(int length);
-        @MemberGetter @Name("timestamp") public native int getTimestamp();
-        @MemberSetter @Name("timestamp") public native void setTimestamp(int timestamp);
-        @MemberGetter @Name("span") public native int getSpan();
-        @MemberSetter @Name("span") public native void setSpan(int span);
-        @MemberGetter @Name("sequence") public native int sequence();
-        @MemberSetter @Name("sequence") public native void setSequence(int sequence);
-        @MemberGetter @Name("user_data") public native int getUserData();
-        @MemberSetter @Name("user_data") public native void setUserData(int userData);
+        @MemberGetter
+        @Name("data")
+        public native @Cast("char *")
+        ByteBuffer getData();
+
+        @MemberSetter
+        @Name("data")
+        public native void setData(@Cast("char *") ByteBuffer data);
+
+        @MemberSetter
+        @Name("data")
+        public native void setData(@Cast("char *") byte[] data);
+
+        @MemberGetter
+        @Name("len")
+        public native int getLength();
+
+        @MemberSetter
+        @Name("len")
+        public native void setLength(int length);
+
+        @MemberGetter
+        @Name("timestamp")
+        public native int getTimestamp();
+
+        @MemberSetter
+        @Name("timestamp")
+        public native void setTimestamp(int timestamp);
+
+        @MemberGetter
+        @Name("span")
+        public native int getSpan();
+
+        @MemberSetter
+        @Name("span")
+        public native void setSpan(int span);
+
+        @MemberGetter
+        @Name("sequence")
+        public native int sequence();
+
+        @MemberSetter
+        @Name("sequence")
+        public native void setSequence(int sequence);
+
+        @MemberGetter
+        @Name("user_data")
+        public native int getUserData();
+
+        @MemberSetter
+        @Name("user_data")
+        public native void setUserData(int userData);
     }
 
     /**
@@ -436,7 +505,7 @@ public class Speex {
         }
 
         public void resample(short[] in, short[] out) {
-            speex_resampler_process_int(mNativeState, 0, in, new int[] { in.length }, out, new int[] { out.length });
+            speex_resampler_process_int(mNativeState, 0, in, new int[]{in.length}, out, new int[]{out.length});
         }
 
         public void destroy() {
@@ -481,8 +550,9 @@ public class Speex {
         public int decodeFloat(ByteBuffer input, int inputSize, float[] output, int frameSize) throws NativeAudioException {
             speex_bits_read_from(mBits, input, inputSize);
             int result = speex_decode(mState, mBits, output);
-            if(result < 0) throw new NativeAudioException("Speex decoding failed with error: "+result);
-            for(int i=0; i < frameSize; i++) {
+            if (result < 0)
+                throw new NativeAudioException("Speex decoding failed with error: " + result);
+            for (int i = 0; i < frameSize; i++) {
                 output[i] *= (1.0f / Short.MAX_VALUE);
             }
             return frameSize;
@@ -493,8 +563,9 @@ public class Speex {
             float[] foutput = new float[frameSize];
             speex_bits_read_from(mBits, input, inputSize);
             int result = speex_decode(mState, mBits, foutput);
-            if(result < 0) throw new NativeAudioException("Speex decoding failed with error: "+result);
-            for(int i=0; i < frameSize; i++) {
+            if (result < 0)
+                throw new NativeAudioException("Speex decoding failed with error: " + result);
+            for (int i = 0; i < frameSize; i++) {
                 output[i] = (short) foutput[i];
             }
             return frameSize;

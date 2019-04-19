@@ -23,9 +23,6 @@ import com.morlunk.jumble.model.IUser;
 
 import java.security.cert.X509Certificate;
 
-/**
- * Created by andrew on 18/10/15.
- */
 public interface IJumbleObserver {
     void onConnected();
 

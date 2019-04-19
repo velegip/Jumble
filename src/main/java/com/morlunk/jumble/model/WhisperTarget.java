@@ -19,14 +19,13 @@ package com.morlunk.jumble.model;
 
 import com.morlunk.jumble.protobuf.Mumble;
 
-/**
- * Created by andrew on 28/04/16.
- */
+
 public interface WhisperTarget {
     Mumble.VoiceTarget.Target createTarget();
 
     /**
      * Returns a user-readable name for the whisper target, to display in the UI.
+     *
      * @return A channel name or list of users, depending on the implementation.
      */
     String getName();

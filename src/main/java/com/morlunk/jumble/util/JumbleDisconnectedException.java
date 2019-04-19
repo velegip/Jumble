@@ -2,7 +2,6 @@ package com.morlunk.jumble.util;
 
 /**
  * Called when a
- * Created by andrew on 01/03/17.
  */
 
 public class JumbleDisconnectedException extends RuntimeException {

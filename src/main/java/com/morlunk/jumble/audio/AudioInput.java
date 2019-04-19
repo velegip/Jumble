@@ -19,25 +19,26 @@ package com.morlunk.jumble.audio;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
+import android.media.audiofx.AcousticEchoCanceler;
+import android.media.audiofx.AudioEffect;
 import android.util.Log;
 
-import com.morlunk.jumble.BuildConfig;
 import com.morlunk.jumble.Constants;
 import com.morlunk.jumble.exception.AudioInitializationException;
 import com.morlunk.jumble.exception.NativeAudioException;
-import com.morlunk.jumble.model.TalkState;
 import com.morlunk.jumble.protocol.AudioHandler;
 
-/**
- * Created by andrew on 23/08/13.
- */
 public class AudioInput implements Runnable {
-    public static final int[] SAMPLE_RATES = { 48000, 44100, 16000, 8000 };
+    public static final int[] SAMPLE_RATES = {48000, 44100, 16000, 8000};
 
     // AudioRecord state
     private AudioInputListener mListener;
     private AudioRecord mAudioRecord;
     private final int mFrameSize;
+
+    // echo cancellation
+    private AcousticEchoCanceler aec = null;
+    private boolean useBuiltInAEC = true;
 
     private Thread mRecordThread;
     private boolean mRecording;
@@ -54,6 +55,7 @@ public class AudioInput implements Runnable {
             int sampleRate = i == 0 ? targetSampleRate : SAMPLE_RATES[i - 1];
             try {
                 mAudioRecord = setupAudioRecord(sampleRate, audioSource);
+                setupAudioEchoCancel(mAudioRecord);
                 break;
             } catch (AudioInitializationException e) {
                 // Continue iteration, probing for a supported sample rate.
@@ -71,24 +73,45 @@ public class AudioInput implements Runnable {
 
     private static AudioRecord setupAudioRecord(int sampleRate, int audioSource) throws AudioInitializationException {
         int minBufferSize = AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO,
-                                                                AudioFormat.ENCODING_PCM_16BIT);
+                AudioFormat.ENCODING_PCM_16BIT);
         if (minBufferSize <= 0)
             throw new AudioInitializationException("Invalid buffer size returned (unsupported sample rate).");
 
         AudioRecord audioRecord;
         try {
             audioRecord = new AudioRecord(audioSource, sampleRate, AudioFormat.CHANNEL_IN_MONO,
-                                                 AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
+                    AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
         } catch (IllegalArgumentException e) {
             throw new AudioInitializationException(e);
         }
 
-        if(audioRecord.getState() == AudioRecord.STATE_UNINITIALIZED) {
+        if (audioRecord.getState() == AudioRecord.STATE_UNINITIALIZED) {
             audioRecord.release();
             throw new AudioInitializationException("AudioRecord failed to initialize!");
         }
 
         return audioRecord;
+    }
+
+    /**
+     * Setups the Echo Cancelation if the device support it
+     *
+     * @param audioRecord Recorded audio
+     * @return boolean
+     */
+    private boolean setupAudioEchoCancel(AudioRecord audioRecord) {
+        shutdownAudioEchoCancel();
+
+        if (BuiltInAECIsAvailable()) {
+            aec = AcousticEchoCanceler.create(audioRecord.getAudioSessionId());
+            if (aec == null) {
+                return false;
+            }
+            int ret = aec.setEnabled(useBuiltInAEC);
+            return ret == AudioEffect.SUCCESS;
+        }
+
+        return false;
     }
 
     /**
@@ -106,7 +129,7 @@ public class AudioInput implements Runnable {
      * Not thread-safe.
      */
     public void stopRecording() {
-        if(!mRecording) return;
+        if (!mRecording) return;
         mRecording = false;
         try {
             mRecordThread.interrupt();
@@ -124,9 +147,17 @@ public class AudioInput implements Runnable {
      */
     public void shutdown() {
         stopRecording();
-        if(mAudioRecord != null) {
+        if (mAudioRecord != null) {
             mAudioRecord.release();
             mAudioRecord = null;
+        }
+        shutdownAudioEchoCancel();
+    }
+
+    private void shutdownAudioEchoCancel() {
+        if (aec != null) {
+            aec.release();
+            aec = null;
         }
     }
 
@@ -156,14 +187,14 @@ public class AudioInput implements Runnable {
 
         mAudioRecord.startRecording();
 
-        if(mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED)
+        if (mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED)
             return;
 
         final short[] mAudioBuffer = new short[mFrameSize];
         // We loop when the 'recording' instance var is true instead of checking audio record state because we want to always cleanly shutdown.
-        while(mRecording) {
+        while (mRecording) {
             int shortsRead = mAudioRecord.read(mAudioBuffer, 0, mFrameSize);
-            if(shortsRead > 0) {
+            if (shortsRead > 0) {
                 mListener.onAudioInputReceived(mAudioBuffer, mFrameSize);
             } else {
                 Log.e(Constants.TAG, "Error fetching audio! AudioRecord error " + shortsRead);
@@ -177,5 +208,21 @@ public class AudioInput implements Runnable {
 
     public interface AudioInputListener {
         void onAudioInputReceived(short[] frame, int frameSize);
+    }
+
+
+    private static boolean BuiltInAECIsAvailable() {
+        return AcousticEchoCanceler.isAvailable();
+    }
+
+    public boolean EnableBuiltInAEC(boolean enable) {
+        // Store the AEC state.
+        useBuiltInAEC = enable;
+        // Set AEC state if AEC has already been created.
+        if (aec != null) {
+            int ret = aec.setEnabled(enable);
+            return ret == AudioEffect.SUCCESS;
+        }
+        return true;
     }
 }

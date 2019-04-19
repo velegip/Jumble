@@ -62,4 +62,6 @@
     <string name="perm_denied">Permission denied.</string>
     <string name="server">Server</string>
     <string name="the_server">the server</string>
+    <string name="a_user">a user</string>
+    <string name="a_admin">a admin</string>
 </resources>

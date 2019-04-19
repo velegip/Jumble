@@ -30,13 +30,11 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Based off of the official Mumble project's 'CryptState.h' and 'CryptState.cpp' files.
- *
+ * <p>
  * This code implements the patented OCB-AES128 cipher mode of operation.
  * Until recently, this would've posed a problem- Jumble is licensed under Apache v2, and the patent was only licensed for use with GPL software without authorization.
  * As of January 2013, the author has given a free license for any open source software certified by the OSI (Apache v2 included)
  * http://www.cs.ucdavis.edu/~rogaway/ocb/license.htm
- *
- * Created by andrew on 24/06/13.
  */
 public class CryptState {
     public static final int AES_BLOCK_SIZE = 16;
@@ -121,6 +119,7 @@ public class CryptState {
 
     /**
      * Decrypts data using the OCB-AES128 standard.
+     *
      * @param source The encoded audio data.
      * @param length The length of the source array.
      */

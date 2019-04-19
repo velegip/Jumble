@@ -25,7 +25,6 @@ import java.security.cert.X509Certificate;
 
 /**
  * Stub class for Jumble service observation.
- * Created by andrew on 31/07/13.
  */
 public class JumbleObserver implements IJumbleObserver {
     @Override

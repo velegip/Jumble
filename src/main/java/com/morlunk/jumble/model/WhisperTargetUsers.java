@@ -19,9 +19,7 @@ package com.morlunk.jumble.model;
 
 import com.morlunk.jumble.protobuf.Mumble;
 
-/**
- * Created by andrew on 28/04/16.
- */
+
 public class WhisperTargetUsers implements WhisperTarget {
     @Override
     public Mumble.VoiceTarget.Target createTarget() {

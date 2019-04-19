@@ -22,14 +22,10 @@ import com.googlecode.javacpp.Pointer;
 import com.morlunk.jumble.audio.javacpp.CELT7;
 import com.morlunk.jumble.exception.NativeAudioException;
 import com.morlunk.jumble.net.PacketBuffer;
-import com.morlunk.jumble.protocol.AudioHandler;
 
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 
-/**
-* Created by andrew on 08/12/14.
-*/
 public class CELT7Encoder implements IEncoder {
     private final byte[][] mBuffer;
     private final int[] mPacketLengths;
@@ -53,9 +49,11 @@ public class CELT7Encoder implements IEncoder {
         IntPointer error = new IntPointer(1);
         error.put(0);
         mMode = CELT7.celt_mode_create(sampleRate, frameSize, error);
-        if(error.get() < 0) throw new NativeAudioException("CELT 0.7.0 encoder initialization failed with error: "+error.get());
+        if (error.get() < 0)
+            throw new NativeAudioException("CELT 0.7.0 encoder initialization failed with error: " + error.get());
         mState = CELT7.celt_encoder_create(mMode, channels, error);
-        if(error.get() < 0) throw new NativeAudioException("CELT 0.7.0 encoder initialization failed with error: "+error.get());
+        if (error.get() < 0)
+            throw new NativeAudioException("CELT 0.7.0 encoder initialization failed with error: " + error.get());
         CELT7.celt_encoder_ctl(mState, CELT7.CELT_SET_PREDICTION_REQUEST, 0);
         CELT7.celt_encoder_ctl(mState, CELT7.CELT_SET_VBR_RATE_REQUEST, bitrate);
     }
@@ -67,8 +65,8 @@ public class CELT7Encoder implements IEncoder {
         }
 
         int result = CELT7.celt_encode(mState, input, null, mBuffer[mBufferedFrames], mBufferSize);
-        if(result < 0) throw new NativeAudioException("CELT 0.7.0 encoding failed with error: "
-                                                              + result);
+        if (result < 0) throw new NativeAudioException("CELT 0.7.0 encoding failed with error: "
+                + result);
         mPacketLengths[mBufferedFrames] = result;
         mBufferedFrames++;
 
@@ -97,7 +95,7 @@ public class CELT7Encoder implements IEncoder {
             byte[] frame = mBuffer[x];
             int length = mPacketLengths[x];
             int head = length;
-            if(x < mBufferedFrames - 1)
+            if (x < mBufferedFrames - 1)
                 head |= 0x80;
             packetBuffer.append(head);
             packetBuffer.append(frame, length);

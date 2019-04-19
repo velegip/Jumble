@@ -17,9 +17,6 @@
 
 package com.morlunk.jumble.exception;
 
-/**
- * Created by andrew on 28/04/14.
- */
 public class AudioInitializationException extends AudioException {
     public AudioInitializationException(String message) {
         super(message);

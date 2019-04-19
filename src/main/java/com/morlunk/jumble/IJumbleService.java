@@ -17,18 +17,10 @@
 
 package com.morlunk.jumble;
 
-import com.morlunk.jumble.model.IChannel;
-import com.morlunk.jumble.model.IUser;
-import com.morlunk.jumble.model.Message;
 import com.morlunk.jumble.model.Server;
-import com.morlunk.jumble.model.WhisperTarget;
-import com.morlunk.jumble.net.JumbleUDPMessageType;
 import com.morlunk.jumble.util.IJumbleObserver;
 import com.morlunk.jumble.util.JumbleDisconnectedException;
 import com.morlunk.jumble.util.JumbleException;
-import com.morlunk.jumble.util.VoiceTargetMode;
-
-import java.util.List;
 
 /**
  * A public interface for clients to communicate with a {@link JumbleService}.
@@ -59,19 +51,22 @@ public interface IJumbleService {
 
     /**
      * Returns the current connection state of the service.
+     *
      * @return one of {@link JumbleService.ConnectionState}.
      */
     JumbleService.ConnectionState getConnectionState();
 
     /**
      * If the {@link JumbleService} disconnected due to an error, returns that error.
+     *
      * @return The error causing disconnection. If the last disconnection was successful or a
-     *         connection has yet to be established, returns null.
+     * connection has yet to be established, returns null.
      */
     JumbleException getConnectionError();
 
     /**
      * Returns the reconnection state of the {@link JumbleService}.
+     *
      * @return true if the service will attempt to automatically reconnect in the future.
      */
     boolean isReconnecting();
@@ -89,6 +84,7 @@ public interface IJumbleService {
     /**
      * Returns the active session with the remote, or throws an exception if no session is currently
      * active. This can be checked using {@link IJumbleService#isConnected()}.
+     *
      * @return the active session.
      * @throws JumbleDisconnectedException if the connection state is not CONNECTED.
      */

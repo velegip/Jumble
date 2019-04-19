@@ -19,7 +19,6 @@ package com.morlunk.jumble.util;
 
 /**
  * Formats strings into HTML.
- * Created by andrew on 24/08/13.
  */
 public class MessageFormatter {
 
@@ -29,6 +28,7 @@ public class MessageFormatter {
 
     /**
      * Highlights the passed string using the service's defined color {@link MessageFormatter#HIGHLIGHT_COLOR}.
+     *
      * @param string The string to highlight.
      * @return The passed string enclosed with HTML font tags specifying the color.
      */

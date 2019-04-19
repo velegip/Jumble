@@ -19,7 +19,6 @@ package com.morlunk.jumble.exception;
 
 /**
  * Called when Jumble has not yet received the ServerSync message from the server.
- * Created by andrew on 24/10/15.
  */
 public class NotSynchronizedException extends Exception {
     public NotSynchronizedException() {

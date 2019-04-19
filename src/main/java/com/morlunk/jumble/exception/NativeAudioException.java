@@ -17,9 +17,6 @@
 
 package com.morlunk.jumble.exception;
 
-/**
- * Created by andrew on 07/03/14.
- */
 public class NativeAudioException extends AudioException {
     public NativeAudioException(String message) {
         super(message);

@@ -22,7 +22,6 @@ import android.os.Parcelable;
 
 /**
  * User talk state.
- * Created by andrew on 19/04/15.
  */
 public enum TalkState implements Parcelable {
     TALKING,

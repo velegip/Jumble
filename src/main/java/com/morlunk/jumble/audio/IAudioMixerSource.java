@@ -6,5 +6,6 @@ package com.morlunk.jumble.audio;
  */
 public interface IAudioMixerSource<T> {
     T getSamples();
+
     int getNumSamples();
 }

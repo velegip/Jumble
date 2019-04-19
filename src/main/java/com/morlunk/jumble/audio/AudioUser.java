@@ -17,14 +17,13 @@
 
 package com.morlunk.jumble.audio;
 
-/**
- * Created by andrew on 05/04/15.
- */
 public class AudioUser {
     private static final float AVERAGE_DECAY = 0.99f;
 
     private int mSession;
-    /** The average amount of packets in the jitter buffer. */
+    /**
+     * The average amount of packets in the jitter buffer.
+     */
     private float mAverageAvailable;
 
     public AudioUser(int session) {
@@ -40,6 +39,7 @@ public class AudioUser {
      * Use the given packet data to update the average available packets.
      * If the number of packets present is greater than the accumulated average, update our average
      * to it- otherwise, decay our average by a factor of {@link #AVERAGE_DECAY}.
+     *
      * @param numPackets The number of packets present in this cycle of the jitter buffer.
      */
     public void updateAveragePackets(int numPackets) {

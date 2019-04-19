@@ -53,7 +53,7 @@ public class JumbleSSLSocketFactory {
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("X509");
         kmf.init(keystore, keystorePassword != null ? keystorePassword.toCharArray() : new char[0]);
 
-        if(trustStorePath != null) {
+        if (trustStorePath != null) {
             KeyStore trustStore = KeyStore.getInstance(trustStoreFormat);
             FileInputStream fis = new FileInputStream(trustStorePath);
             trustStore.load(fis, trustStorePassword.toCharArray());
@@ -67,7 +67,7 @@ public class JumbleSSLSocketFactory {
             Log.i(Constants.TAG, "Using system trust store");
         }
 
-        mContext.init(kmf.getKeyManagers(), new TrustManager[] { mTrustWrapper }, null);
+        mContext.init(kmf.getKeyManagers(), new TrustManager[]{mTrustWrapper}, null);
     }
 
     /**
@@ -86,6 +86,7 @@ public class JumbleSSLSocketFactory {
 
     /**
      * Gets the certificate chain of the remote host.
+     *
      * @return The remote server's certificate chain, or null if a connection has not reached handshake yet.
      */
     public X509Certificate[] getServerChain() {
@@ -114,7 +115,7 @@ public class JumbleSSLSocketFactory {
             try {
                 mDefaultTrustManager.checkClientTrusted(chain, authType);
             } catch (CertificateException e) {
-                if(mTrustManager != null) mTrustManager.checkClientTrusted(chain, authType);
+                if (mTrustManager != null) mTrustManager.checkClientTrusted(chain, authType);
                 else throw e;
             }
         }
@@ -125,7 +126,7 @@ public class JumbleSSLSocketFactory {
             try {
                 mDefaultTrustManager.checkServerTrusted(chain, authType);
             } catch (CertificateException e) {
-                if(mTrustManager != null) mTrustManager.checkServerTrusted(chain, authType);
+                if (mTrustManager != null) mTrustManager.checkServerTrusted(chain, authType);
                 else throw e;
             }
         }

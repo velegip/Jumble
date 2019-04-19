@@ -19,7 +19,6 @@ package com.morlunk.jumble.audio.inputmode;
 
 /**
  * An input mode that sends audio if the amplitude exceeds a certain threshold.
- * Created by andrew on 13/02/16.
  */
 public class ActivityInputMode implements IInputMode {
     // Continue speech for 250ms to prevent dropping.
@@ -39,12 +38,12 @@ public class ActivityInputMode implements IInputMode {
         for (int i = 0; i < length; i++) {
             sum += pcm[i] * pcm[i];
         }
-        float micLevel = (float) Math.sqrt(sum / (float)length);
+        float micLevel = (float) Math.sqrt(sum / (float) length);
         float peakSignal = (float) (20.0f * Math.log10(micLevel / 32768.0f)) / 96.0f;
         boolean talking = (peakSignal + 1) >= mVADThreshold;
 
         // Record the last time where VAD was detected in order to prevent speech dropping.
-        if(talking) {
+        if (talking) {
             mVADLastDetected = System.nanoTime();
         }
 

@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Created by andrew on 16/07/15.
- */
 public class MixerTest extends TestCase {
     /**
      * Tests that mixing order should not affect the output.

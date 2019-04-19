@@ -21,17 +21,13 @@ import com.morlunk.jumble.model.IChannel;
 import com.morlunk.jumble.model.IMessage;
 import com.morlunk.jumble.model.IUser;
 
-import org.spongycastle.jcajce.provider.asymmetric.X509;
-
 import java.security.cert.X509Certificate;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A composite wrapper around Jumble observers to easily broadcast to each observer.
- * Created by andrew on 12/07/14.
  */
 public class JumbleCallbacks implements IJumbleObserver {
     private final Set<IJumbleObserver> mCallbacks;

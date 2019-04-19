@@ -19,7 +19,6 @@ package com.morlunk.jumble.exception;
 
 /**
  * Thrown when a Jumble connection has not yet been established.
- * Created by andrew on 24/10/15.
  */
 public class NotConnectedException extends Exception {
     public NotConnectedException() {

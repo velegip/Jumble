@@ -22,9 +22,6 @@ import com.morlunk.jumble.protobuf.Mumble;
 import com.morlunk.jumble.protocol.JumbleTCPMessageListener;
 import com.morlunk.jumble.protocol.JumbleUDPMessageListener;
 
-/**
- * Created by andrew on 23/04/14.
- */
 public class JumbleNetworkListener implements JumbleTCPMessageListener, JumbleUDPMessageListener {
     @Override
     public void messageAuthenticate(Mumble.Authenticate msg) {

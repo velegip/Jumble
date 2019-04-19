@@ -25,14 +25,11 @@ import com.morlunk.jumble.Constants;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -55,19 +52,26 @@ public class JumbleUDP implements Runnable {
     private InetAddress mResolvedHost;
     private boolean mConnected;
 
-    /** Main datagram thread hosting this runnable. */
+    /**
+     * Main datagram thread hosting this runnable.
+     */
     private final Thread mDatagramThread;
 
-    /** Handler to invoke listener callback invocations on. */
+    /**
+     * Handler to invoke listener callback invocations on.
+     */
     private final Handler mCallbackHandler;
 
-    /** Unbounded queue of outgoing packets to be sent. */
+    /**
+     * Unbounded queue of outgoing packets to be sent.
+     */
     private final BlockingQueue<DatagramPacket> mSendQueue;
 
     /**
      * Sets up a new UDP connection context.
-     * @param cryptState Cryptographic state provider.
-     * @param listener Callback target. Messages will be posted on the callback handler given.
+     *
+     * @param cryptState      Cryptographic state provider.
+     * @param listener        Callback target. Messages will be posted on the callback handler given.
      * @param callbackHandler Handler to post listener invocations on.
      */
     public JumbleUDP(@NotNull CryptState cryptState, @NotNull UDPConnectionListener listener,
@@ -221,7 +225,9 @@ public class JumbleUDP implements Runnable {
      */
     public interface UDPConnectionListener {
         void onUDPDataReceived(byte[] data);
+
         void onUDPConnectionError(Exception e);
+
         void resyncCryptState();
     }
 

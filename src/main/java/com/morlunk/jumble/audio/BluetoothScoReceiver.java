@@ -21,14 +21,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.widget.Toast;
 
-import com.morlunk.jumble.R;
-import com.morlunk.jumble.exception.AudioInitializationException;
 
 /**
  * Manages the state of Bluetooth SCO.
- * Created by andrew on 25/09/15.
  */
 public class BluetoothScoReceiver extends BroadcastReceiver {
     private final Listener mListener;
@@ -73,6 +69,7 @@ public class BluetoothScoReceiver extends BroadcastReceiver {
 
     public interface Listener {
         void onBluetoothScoConnected();
+
         void onBluetoothScoDisconnected();
     }
 }

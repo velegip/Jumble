@@ -3,17 +3,14 @@ package com.morlunk.jumble;
 import com.morlunk.jumble.model.IChannel;
 import com.morlunk.jumble.model.IUser;
 import com.morlunk.jumble.model.Message;
-import com.morlunk.jumble.model.Server;
 import com.morlunk.jumble.model.WhisperTarget;
 import com.morlunk.jumble.net.JumbleUDPMessageType;
-import com.morlunk.jumble.util.IJumbleObserver;
 import com.morlunk.jumble.util.VoiceTargetMode;
 
 import java.util.List;
 
 /**
  * An interface representing a live connection to the server.
- * Created by andrew on 28/02/17.
  */
 
 public interface IJumbleSession {
@@ -34,7 +31,7 @@ public interface IJumbleSession {
 
     /**
      * @return the current bandwidth in bps for audio sent to the server, or a negative integer
-     *         if unknown (prior to connection or after disconnection).
+     * if unknown (prior to connection or after disconnection).
      */
     int getCurrentBandwidth();
 
@@ -42,8 +39,9 @@ public interface IJumbleSession {
      * Returns the protocol version returned by the server in the format 0xAABBCC, where AA
      * indicates the major version, BB indicates the minor version, and CC indicates the patch
      * version. This is the same formatting used by the Mumble protocol in big-endian format.
+     *
      * @return the current bandwidth in bps for audio sent to the server, or a negative integer
-     *         if unknown (prior to connection or after disconnection).
+     * if unknown (prior to connection or after disconnection).
      */
     int getServerVersion();
 
@@ -64,24 +62,28 @@ public interface IJumbleSession {
 
     /**
      * Returns the current user's session. Set during server synchronization.
+     *
      * @return an integer identifying the current user's connection.
      */
     int getSessionId();
 
     /**
      * Returns the current user. Set during server synchronization.
+     *
      * @return the {@link IUser} representing the current user.
      */
     IUser getSessionUser();
 
     /**
      * Returns the user's current channel.
+     *
      * @return the {@link IChannel} representing the user's current channel.
      */
     IChannel getSessionChannel();
 
     /**
      * Retrieves the user with the given session ID.
+     *
      * @param session An integer ID identifying a user's session. See {@link IUser#getSession()}.
      * @return A user with the given session, or null if not found.
      */
@@ -89,6 +91,7 @@ public interface IJumbleSession {
 
     /**
      * Retrieves the channel with the given ID.
+     *
      * @param id An integer ID identifying a channel. See {@link IChannel#getId()}.
      * @return A channel with the given session, or null if not found.
      */
@@ -165,6 +168,7 @@ public interface IJumbleSession {
 
     /**
      * Unlinks all channels from the provided channel.
+     *
      * @param channel The channel to be unlinked.
      */
     void unlinkAllChannels(IChannel channel);
@@ -172,6 +176,7 @@ public interface IJumbleSession {
     /**
      * Registers a whisper target to be used as a voice target on the server.
      * Note that Mumble only supports a maximum of 30 active voice targets at once.
+     *
      * @param target The target to register.
      * @return A voice target ID in the range [1, 30], or a negative value if all slots are full.
      */
@@ -180,6 +185,7 @@ public interface IJumbleSession {
     /**
      * Unregisters a whisper target from the server.
      * Note that Mumble only supports a maximum of 30 active voice targets at once.
+     *
      * @param target The target ID to unregister.
      */
     void unregisterWhisperTarget(byte targetId);
@@ -189,24 +195,28 @@ public interface IJumbleSession {
      * 0: Normal speech<br>
      * 1-30: Whisper targets<br>
      * 31: Server loopback
+     *
      * @param targetId A voice target ID in the range [0, 31].
      */
     void setVoiceTargetId(byte targetId);
 
     /**
      * Gets the current voice target ID in use, in the range [0, 31].
+     *
      * @return The active voice target ID.
      */
     byte getVoiceTargetId();
 
     /**
      * Gets the current voice target mode.
+     *
      * @return The active voice target mode.
      */
     VoiceTargetMode getVoiceTargetMode();
 
     /**
      * Returns the current whisper target.
+     *
      * @return the set whisper target, or null if the user is not whispering.
      */
     WhisperTarget getWhisperTarget();

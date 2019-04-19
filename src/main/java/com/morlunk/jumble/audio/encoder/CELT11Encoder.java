@@ -22,14 +22,10 @@ import com.googlecode.javacpp.Pointer;
 import com.morlunk.jumble.audio.javacpp.CELT11;
 import com.morlunk.jumble.exception.NativeAudioException;
 import com.morlunk.jumble.net.PacketBuffer;
-import com.morlunk.jumble.protocol.AudioHandler;
 
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 
-/**
-* Created by andrew on 08/12/14.
-*/
 public class CELT11Encoder implements IEncoder {
     private final byte[][] mBuffer;
     private final int mBufferSize;
@@ -48,8 +44,8 @@ public class CELT11Encoder implements IEncoder {
         IntPointer error = new IntPointer(1);
         error.put(0);
         mState = CELT11.celt_encoder_create(sampleRate, channels, error);
-        if(error.get() < 0) throw new NativeAudioException("CELT 0.11.0 encoder initialization " +
-                                                                 "failed with error: "+error.get());
+        if (error.get() < 0) throw new NativeAudioException("CELT 0.11.0 encoder initialization " +
+                "failed with error: " + error.get());
     }
 
     @Override
@@ -59,9 +55,9 @@ public class CELT11Encoder implements IEncoder {
         }
 
         int result = CELT11.celt_encode(mState, input, frameSize, mBuffer[mBufferedFrames],
-                                               mBufferSize);
-        if(result < 0) throw new NativeAudioException("CELT 0.11.0 encoding failed with error: "
-                                                              + result);
+                mBufferSize);
+        if (result < 0) throw new NativeAudioException("CELT 0.11.0 encoding failed with error: "
+                + result);
         mBufferedFrames++;
         return result;
     }
@@ -85,7 +81,7 @@ public class CELT11Encoder implements IEncoder {
         for (int x = 0; x < mBufferedFrames; x++) {
             byte[] frame = mBuffer[x];
             int head = frame.length;
-            if(x < mBufferedFrames - 1)
+            if (x < mBufferedFrames - 1)
                 head |= 0x80;
             packetBuffer.append(head);
             packetBuffer.append(frame, frame.length);

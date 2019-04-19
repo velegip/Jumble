@@ -17,16 +17,14 @@
 
 package com.morlunk.jumble.audio.inputmode;
 
-import java.util.concurrent.locks.Condition;
-
 /**
  * A talk state engine, providing information regarding when it is appropriate to send audio.
- * Created by andrew on 13/02/16.
  */
 public interface IInputMode {
     /**
      * Called when new input is received from the audio recording thread.
-     * @param pcm PCM data.
+     *
+     * @param pcm    PCM data.
      * @param length The number of shorts in the PCM data.
      * @return true if the input should be transmitted.
      */
@@ -36,7 +34,7 @@ public interface IInputMode {
      * Called before any audio processing to wait for a change in input availability.
      * For example, a push to talk implementation will block the audio input thread until the
      * button has been activated. Other implementations may do nothing.
-     *
+     * <p>
      * This function should return immediately when shouldTransmit is returning true.
      */
     void waitForInput();
