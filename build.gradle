@@ -14,7 +14,14 @@ apply plugin: 'maven'
 
 group = 'com.github.velegip'
 
-
+allprojects {
+    repositories {
+        mavenLocal()
+        google()
+        jcenter()
+        maven { url "https://jitpack.io" }
+    }
+}
 repositories {
     google()
     jcenter()
